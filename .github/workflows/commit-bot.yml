@@ -6,7 +6,7 @@ on:
       - master
       - develop
   schedule:
-    - cron: "0 * * * *"
+    - cron: "0,15,30,45 * * * *"
 
 concurrency:
   group: ${{format('commit-bot-{0}:{1}', github.repository, github.ref)}}
@@ -29,14 +29,14 @@ jobs:
           echo "branches=$branches" >> $GITHUB_OUTPUT
 
       - name: Checkout master repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         if: contains(steps.branches.outputs.branches, 'master')
         with:
           ref: master
           path: master
 
       - name: Checkout develop repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         if: contains(steps.branches.outputs.branches, 'develop')
         with:
           ref: develop
@@ -84,7 +84,7 @@ jobs:
           done
 
       - name: Push changes from master
-        uses: ad-m/github-push-action@v0.6.0
+        uses: ad-m/github-push-action@v0.8.0
         if: contains(steps.branches.outputs.branches, 'master')
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -92,7 +92,7 @@ jobs:
           directory: master
 
       - name: Push changes from develop
-        uses: ad-m/github-push-action@v0.6.0
+        uses: ad-m/github-push-action@v0.8.0
         if: contains(steps.branches.outputs.branches, 'develop')
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
