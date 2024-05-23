@@ -58,15 +58,19 @@ jobs:
               submodule_name=$(echo "$key" | awk -F '.' '{print $2}')
               submodule_path=$(echo "$path")
               url=$(git config --file .gitmodules --get-regexp "^submodule\.$submodule_name\.url$" | awk '{print $2}')
-              hash=$(git ls-remote "$url" "refs/heads/$branch" | cut -f 1)
-              hash="${hash#"${hash%%[![:space:]]*}"}"
-              hash="${hash%"${hash##*[![:space:]]}"}"
-              commit_id="${hash:0:8}"
+              current_hash=$(git ls-remote "$url" "refs/heads/$branch" | cut -f 1)
+              current_hash="${current_hash#"${current_hash%%[![:space:]]*}"}"
+              current_hash="${current_hash%"${hash##*[![:space:]]}"}"
+              commit_id="${current_hash:0:8}"
               previous_hash=$(git ls-tree HEAD "$submodule_path" | awk '{print $3}')
               previous_hash="${previous_hash#"${previous_hash%%[![:space:]]*}"}"
               previous_hash="${previous_hash%"${previous_hash##*[![:space:]]}"}"
               previous_commit_id="${previous_hash:0:8}"
-              if [ "$hash" == "$previous_hash" ]; then
+              # debugging
+              if [[ "$submodule_name" =~ container_hash ]]; then
+                  echo "current_hash is XX${current_hash}XX and previous_hash is XX${previous_hash}XX" 
+              fi
+              if [[ "${current_hash}" == "${previous_hash}" ]]; then
                   echo "$submodule_name ($commit_id): OK"
               else
                   echo "$submodule_name: $previous_commit_id -> $commit_id"
